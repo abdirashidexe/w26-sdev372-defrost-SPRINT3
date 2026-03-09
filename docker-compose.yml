@@ -7,7 +7,6 @@ services:
       MYSQL_DATABASE: defrost_app
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
-    # remove the ports section completely
     volumes:
       - db_data:/var/lib/mysql
       - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
@@ -16,7 +15,7 @@ services:
   api:
     build: ./backend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       DB_HOST: db
       DB_USER: appuser
@@ -30,9 +29,22 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "5173:5173"
+      - "3000:5173"
+    environment:
+      - HOST=0.0.0.0
     depends_on:
       - api
+
+  tests:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "npm ci && cd backend && npm ci && cd .. && npx playwright install && npm run test"
+    depends_on:
+      - db
+      - api
+      - frontend
 
 volumes:
   db_data:

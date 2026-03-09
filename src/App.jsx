@@ -37,11 +37,28 @@ function App() {
 
       setStatus(`Saved as ${body.phoneNumber}`);
       alert("Thank you for your submission!");
+
     } catch (err) {
       console.error(err);
       setStatus(`Cannot reach backend at ${API_BASE_URL}. Start backend and try again.`);
     }
   };
+
+  const sendTestMessage = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/send-text`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus(body?.error || `SText failed (${res.status})`);
+        return;
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const locationWeather = async (latitude = lat, longitude = long) => {
     if (!latitude || !longitude) {
@@ -118,6 +135,10 @@ function App() {
         <br />
         <button className="btn" onClick={getLocation}>
           Get Location
+        </button>
+        <br />
+        <button className="btn" onClick={sendTestMessage}>
+          GSend Test Message to Virtual Phone
         </button>
         <button className="btn" onClick={() => locationWeather()}>
           Check Frost Risk
