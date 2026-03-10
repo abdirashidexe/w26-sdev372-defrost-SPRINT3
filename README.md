@@ -1,6 +1,6 @@
 # Project Overview
 ## Project Name & Tagline
-Defrost: Discard the Frost
+Defrost: Discard the Frost.
 
 ## Problem Statement: What problem does this solve? Be specific!
 - Waking up on cold mornings is already hard enough. It's worse when you're all ready to start your day just to see your car's windows are freezing with frost. With Defrost, on the mornings that the app detects (by checking the night before) the weather is cold enough to freeze your windows: you will recieve a notification to wake up earlier telling you to defrost your car.
