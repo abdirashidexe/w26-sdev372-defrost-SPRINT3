@@ -2,9 +2,9 @@ name: CI Tests
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, pipeline-sprint5 ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, pipeline-sprint5 ]
 
 jobs:
   backend-unit-tests:
