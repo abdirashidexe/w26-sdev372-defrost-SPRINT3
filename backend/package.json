@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run"
-  },
+  "test": "vitest run --config ./vitest.config.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
