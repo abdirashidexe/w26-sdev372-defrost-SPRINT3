@@ -1,6 +1,7 @@
 body {
   margin: 0;
   background: #121212;
+  transition: background 1.5s ease;
   min-height: 100vh;
   font-family: 'Poppins';
   color: rgba(255, 255, 255, 0.87);
@@ -94,4 +95,28 @@ footer {
   margin-top: auto;
   padding: 20px;
   color: #888;
+}
+
+body.frost-theme { background: #071428; }
+body.thaw-theme  { background: #1a0800; }
+
+.snowflake-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.snowflake {
+  position: absolute;
+  top: -20px;
+  color: rgba(150, 210, 255, 0.85);
+  animation: fall linear infinite;
+  user-select: none;
+}
+
+@keyframes fall {
+  to { transform: translateY(100vh) rotate(360deg); }
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import "./index.css";
 
 function App() {
@@ -15,6 +15,26 @@ function App() {
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
+
+  useEffect(() => {
+    if (weather?.frostRisk === true) document.body.className = "frost-theme";
+    else if (weather?.frostRisk === false) document.body.className = "thaw-theme";
+    else document.body.className = "";
+  }, [weather?.frostRisk]);
+
+  const snowflakes = useMemo(
+    () =>
+      weather?.frostRisk
+        ? Array.from({ length: 20 }, (_, i) => ({
+            id: i,
+            left: `${Math.random() * 100}%`,
+            delay: `${Math.random() * 4}s`,
+            duration: `${3 + Math.random() * 3}s`,
+            size: `${12 + Math.random() * 12}px`,
+          }))
+        : [],
+    [weather?.frostRisk]
+  );
 
   const handleSubmit = async () => {
     if (!phone.trim()) {
@@ -115,6 +135,11 @@ function App() {
 
   return (
     <>
+      <div className="snowflake-container">
+        {snowflakes.map((flake) => (
+          <span key={flake.id} className="snowflake" style={{ left: flake.left, animationDelay: flake.delay, animationDuration: flake.duration, fontSize: flake.size }}>❄</span>
+        ))}
+      </div>
       <h1><span>[Defrost]</span></h1>
       <div className="register">
         <div className="phone-input">
