@@ -3,6 +3,7 @@ import "./index.css";
 
 function App() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const PIRATE_WEATHER_KEY = import.meta.env.VITE_PIRATE_WEATHER_KEY;
   const FROST_THRESHOLD_F = 32;
   const WAKEUP_OFFSET_MINUTES = 15;
 
@@ -84,15 +85,15 @@ function App() {
     setWeatherError(null);
     try {
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min&temperature_unit=fahrenheit&forecast_days=3&timezone=auto`
+        `https://api.pirateweather.net/forecast/${PIRATE_WEATHER_KEY}/${latitude},${longitude}?units=us&exclude=currently,minutely,hourly,alerts`
       );
       if (!res.ok) throw new Error("Weather request failed");
       const body = await res.json();
-      const tomorrowLow = body?.daily?.temperature_2m_min?.[1];
-      const tomorrowDateRaw = body?.daily?.time?.[1];
+      const tomorrow = body?.daily?.data?.[1];
+      const tomorrowLow = tomorrow?.temperatureLow;
       if (typeof tomorrowLow !== "number") throw new Error("Missing forecast data");
-      const tomorrowDate = tomorrowDateRaw
-        ? new Date(tomorrowDateRaw + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
+      const tomorrowDate = tomorrow?.time
+        ? new Date(tomorrow.time * 1000).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
         : null;
       setWeather({
         tomorrowLow,
@@ -185,11 +186,14 @@ function App() {
             )}
             {!weatherLoading && weather && (
               <>
+                <p className="weather-date">{weather.tomorrowDate ?? "Tomorrow"}</p>
                 <div className="weather-temp-row">
-                  <span className="temp-number">{Math.round(weather.tomorrowLow)}°F</span>
+                  <div>
+                    <p className="temp-label">Overnight Low</p>
+                    <span className="temp-number">{Math.round(weather.tomorrowLow)}°F</span>
+                  </div>
                   {weather.frostRisk && <span className="frost-badge">❄ FROST</span>}
                 </div>
-                <p className="weather-date">{weather.tomorrowDate ?? "Tomorrow"}</p>
                 <div className="weather-details">
                   <p>Defrost reminder → {weather.frostRisk ? "ON" : "OFF"}</p>
                   <p>Suggested alarm → {weather.suggestedWakeupOffset > 0 ? `${weather.suggestedWakeupOffset} min earlier` : "No change needed"}</p>
