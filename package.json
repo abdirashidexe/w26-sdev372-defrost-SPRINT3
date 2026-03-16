@@ -8,14 +8,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "dev": "vite",
-    "dev:backend": "nodemon backend/index.js",
     "test": "npm run test:frontend && npm run test:integration && npm run test:e2e",
     "test:e2e": "playwright test",
     "test:integration": "npm --prefix backend run test",
-    "test:frontend": "vitest run",
-    "start": "node backend/index.js",
-    "db:init": "mysql < backend/db/schema.sql && mysql < backend/db/seed.sql",
-    "dev:frontend": "vite"
+    "test:frontend": "vitest run"
   },
   "dependencies": {
     "cors": "^2.8.5",

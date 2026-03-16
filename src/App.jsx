@@ -2,7 +2,12 @@ import { useState } from "react";
 import "./index.css";
 
 function App() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const isLocalHost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+  const localHostApi = "http://localhost:3001";
+  const containerApi = import.meta.env.VITE_API_BASE_URL || "http://api:3000";
+  const API_BASE_URL = isLocalHost ? localHostApi : containerApi;
   const FROST_THRESHOLD_F = 32;
   const WAKEUP_OFFSET_MINUTES = 15;
 
