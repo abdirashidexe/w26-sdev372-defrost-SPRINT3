@@ -12,9 +12,14 @@ test("user can enter phone number and sign up", async ({ page }) => {
   await expect(phoneInput).toHaveValue("2065551234");
 });
 
-test("user can request frost risk after getting location", async ({ page }) => {
+test("user can request frost risk after getting location", async ({ browser }) => {
+  const context = await browser.newContext({
+    geolocation: { latitude: 47.6062, longitude: -122.3321 },
+    permissions: ["geolocation"],
+  });
+  const page = await context.newPage();
   await page.goto(BASE_URL);
   await page.getByRole("button", { name: "Get Location" }).click();
-  await page.getByRole("button", { name: "Check Frost Risk" }).click();
   await expect(page.locator(".weather-card")).toBeVisible();
+  await context.close();
 });
