@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import "./index.css";
 
 function App() {
@@ -8,48 +8,62 @@ function App() {
   const localHostApi = "http://localhost:3001";
   const containerApi = import.meta.env.VITE_API_BASE_URL || "http://api:3000";
   const API_BASE_URL = isLocalHost ? localHostApi : containerApi;
+  const PIRATE_WEATHER_KEY = import.meta.env.VITE_PIRATE_WEATHER_KEY;
   const FROST_THRESHOLD_F = 32;
   const WAKEUP_OFFSET_MINUTES = 15;
 
   const [phone, setPhone] = useState("");
-  const [status, setStatus] = useState(null);
+  const [signupMsg, setSignupMsg] = useState(null);
+  const [testMsg, setTestMsg] = useState(null);
   const [long, setLong] = useState(0);
   const [lat, setLat] = useState(0);
   const [locError, setLocError] = useState(null);
-  const [locationText, setLocationText] = useState("");
+  const [locationDetected, setLocationDetected] = useState(false);
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
+  const snowflakes = useMemo(() =>
+    Array.from({ length: 28 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      duration: `${4 + Math.random() * 6}s`,
+      delay: `${Math.random() * 6}s`,
+      size: `${0.7 + Math.random() * 1.2}em`,
+    })),
+  []);
+
+  useEffect(() => {
+    if (weather?.frostRisk === true) document.body.className = "frost-theme";
+    else if (weather?.frostRisk === false) document.body.className = "thaw-theme";
+    else document.body.className = "";
+  }, [weather?.frostRisk]);
+
   const handleSubmit = async () => {
     if (!phone.trim()) {
-      setStatus("Enter a phone number first.");
+      setSignupMsg({ type: "error", text: "Enter a phone number first." });
       return;
     }
-
     try {
       const res = await fetch(`${API_BASE_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phoneNumber: phone }),
       });
-
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(body?.error || `Signup failed (${res.status})`);
+        setSignupMsg({ type: "error", text: body?.error || `Signup failed (${res.status})` });
         return;
       }
-
-      setStatus(`Saved as ${body.phoneNumber}`);
-      alert("Thank you for your submission!");
-
+      setSignupMsg({ type: "success", text: `✓ Signed up as ${body.phoneNumber}` });
     } catch (err) {
       console.error(err);
-      setStatus(`Cannot reach backend at ${API_BASE_URL}. Start backend and try again.`);
+      setSignupMsg({ type: "error", text: "Cannot reach backend. Start backend and try again." });
     }
   };
 
   const sendTestMessage = async () => {
+    setTestMsg(null);
     try {
       const res = await fetch(`${API_BASE_URL}/send-text`, {
         method: "POST",
@@ -57,35 +71,38 @@ function App() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(body?.error || `SText failed (${res.status})`);
+        setTestMsg({ type: "error", text: body?.error || `Failed (${res.status})` });
         return;
       }
+      setTestMsg({ type: "success", text: "✓ Test message sent!" });
     } catch (err) {
-      console.log(err)
+      console.log(err);
+      setTestMsg({ type: "error", text: "Cannot reach backend." });
     }
-  }
+  };
 
   const locationWeather = async (latitude = lat, longitude = long) => {
     if (!latitude || !longitude) {
       setWeatherError("Get your location first to check frost risk.");
       return;
     }
-
     setWeatherLoading(true);
     setWeatherError(null);
-
     try {
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_min&temperature_unit=fahrenheit&forecast_days=3&timezone=auto`
+        `https://api.pirateweather.net/forecast/${PIRATE_WEATHER_KEY}/${latitude},${longitude}?units=us&exclude=currently,minutely,hourly,alerts`
       );
       if (!res.ok) throw new Error("Weather request failed");
-
       const body = await res.json();
-      const tomorrowLow = body?.daily?.temperature_2m_min?.[1];
+      const tomorrow = body?.daily?.data?.[1];
+      const tomorrowLow = tomorrow?.temperatureLow;
       if (typeof tomorrowLow !== "number") throw new Error("Missing forecast data");
-
+      const tomorrowDate = tomorrow?.time
+        ? new Date(tomorrow.time * 1000).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })
+        : null;
       setWeather({
         tomorrowLow,
+        tomorrowDate,
         frostRisk: tomorrowLow <= FROST_THRESHOLD_F,
         suggestedWakeupOffset: tomorrowLow <= FROST_THRESHOLD_F ? WAKEUP_OFFSET_MINUTES : 0,
       });
@@ -100,74 +117,98 @@ function App() {
 
   const getLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(success, error);
+      navigator.geolocation.getCurrentPosition(onLocSuccess, onLocError);
     } else {
       alert("Geolocation is not supported by this browser.");
     }
   };
 
-  function error() {
+  function onLocError() {
     setLocError("Unable to get location.");
   }
-  function success(position) {
+  function onLocSuccess(position) {
     const { latitude, longitude } = position.coords;
     setLat(latitude);
     setLong(longitude);
-    setLocationText(`Latitude: ${latitude}, Longitude: ${longitude}`);
+    setLocationDetected(true);
     setLocError(null);
     locationWeather(latitude, longitude);
   }
 
   return (
     <>
-      <h1><span>[Defrost]</span></h1>
-      <div className="register">
-        <div className="phone-input">
-          <label htmlFor="phone-number" id="userPrompt">
-            Enter a Phone Number:
-            <input
-              id="phone-number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-            />
-          </label>
+      {weather?.frostRisk && (
+        <div className="snowflake-container">
+          {snowflakes.map(f => (
+            <span key={f.id} className="snowflake" style={{ left: f.left, animationDuration: f.duration, animationDelay: f.delay, fontSize: f.size }}>❄</span>
+          ))}
         </div>
-        <button className="btn" onClick={handleSubmit}>
-          Sign up
-        </button>
-        {status && <p>{status}</p>}
-        <br />
-        <button className="btn" onClick={getLocation}>
-          Get Location
-        </button>
-        <br />
-        <button className="btn" onClick={sendTestMessage}>
-          GSend Test Message to Virtual Phone
-        </button>
-        <button className="btn" onClick={() => locationWeather()}>
-          Check Frost Risk
-        </button>
-        {locError && <p className="error">{locError}</p>}
-        {weatherError && <p className="error">{weatherError}</p>}
-        <p>{locationText}</p>
+      )}
+      <div className="page">
+        <div className="hero">
+          <h1>Defrost</h1>
+          <p className="tagline">Morning frost alerts for your car</p>
+          <p className="hero-desc">
+            Wake up ready. Defrost checks tomorrow's overnight low and sends you a text alert when your car needs defrosting — so you're never caught off guard on a cold morning.
+          </p>
+        </div>
+        <div className="register">
+          <div className="phone-input">
+            <label htmlFor="phone-number" id="userPrompt">Enter a Phone Number:</label>
+            <div className="input-wrapper">
+              <span className="input-icon">📱</span>
+              <input
+                id="phone-number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type="tel"
+                placeholder="+1 (555) 000-0000"
+              />
+            </div>
+          </div>
 
-        <div className="weather-card">
-          <h2>Tomorrow's Morning</h2>
-          {weatherLoading && <p>Loading forecast...</p>}
-          {!weatherLoading && weather && (
-            <>
-              <p>Forecast low ￫ {Math.round(weather.tomorrowLow)}°F</p>
-              <p>Defrost reminder ￫ {weather.frostRisk ? "ON" : "OFF"}</p>
-              <p>
-                Suggested alarm ￫ {" "}
-                {weather.suggestedWakeupOffset > 0
-                  ? `${weather.suggestedWakeupOffset} minutes earlier`
-                  : "No earlier alarm needed"}
-              </p>
-            </>
-          )}
-          {!weatherLoading && !weather && <p>Press "Check Frost Risk" after getting location.</p>}
+          <button className="btn btn-primary" onClick={handleSubmit}>Sign up</button>
+          {signupMsg && <p className={signupMsg.type === "success" ? "status-success" : "error"}>{signupMsg.text}</p>}
+
+          <hr className="divider" />
+
+          <button className="btn" onClick={locationDetected ? () => locationWeather() : getLocation}>
+            {locationDetected ? "Refresh Forecast" : "Get Location"}
+          </button>
+          {locationDetected && !locError && <p className="status-success loc-tag">✓ Location detected</p>}
+          {locError && <p className="error">{locError}</p>}
+
+          <button className="btn btn-secondary" onClick={sendTestMessage}>Send Test Message</button>
+          {testMsg && <p className={testMsg.type === "success" ? "status-success" : "error"}>{testMsg.text}</p>}
+          {weatherError && <p className="error">{weatherError}</p>}
+
+          <div className="weather-card">
+            {weatherLoading && (
+              <div className="weather-loading">
+                <div className="loading-spinner" />
+                <p>Fetching forecast...</p>
+              </div>
+            )}
+            {!weatherLoading && weather && (
+              <>
+                <p className="weather-date">{weather.tomorrowDate ?? "Tomorrow"}</p>
+                <div className="weather-temp-row">
+                  <div>
+                    <p className="temp-label">Overnight Low</p>
+                    <span className="temp-number">{Math.round(weather.tomorrowLow)}°F</span>
+                  </div>
+                  {weather.frostRisk && <span className="frost-badge">❄ FROST</span>}
+                </div>
+                <div className="weather-details">
+                  <p>Defrost reminder → {weather.frostRisk ? "ON" : "OFF"}</p>
+                  <p>Suggested alarm → {weather.suggestedWakeupOffset > 0 ? `${weather.suggestedWakeupOffset} min earlier` : "No change needed"}</p>
+                </div>
+              </>
+            )}
+            {!weatherLoading && !weather && (
+              <p className="weather-placeholder">Press "Get Location" to check frost risk.</p>
+            )}
+          </div>
         </div>
       </div>
       <footer>Copyright © 2026 Defrost. All rights reserved.</footer>

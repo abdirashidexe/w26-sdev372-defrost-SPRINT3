@@ -68,6 +68,7 @@ services:
       - DB_PASSWORD=apppass
       - DB_NAME=defrost_app
       - PLAYWRIGHT_BASE_URL=http://frontend:5173
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 volumes:
   db_data:
