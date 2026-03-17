@@ -149,8 +149,25 @@ function App() {
           <h1>Defrost</h1>
           <p className="tagline">Morning frost alerts for your car</p>
           <p className="hero-desc">
-            Wake up ready. Defrost checks tomorrow's overnight low and sends you a text alert when your car needs defrosting — so you're never caught off guard on a cold morning.
+            Wake up ready. Defrost checks tomorrow's overnight low and sends you a text alert when your car needs defrosting so you're never caught off guard on a cold morning.
           </p>
+          <div className="authors">
+            <p className="authors-label">Built by</p>
+            <div className="authors-row">
+              <div className="author-circle">
+                <span className="author-initial">R</span>
+                <span className="author-name">Rudolf</span>
+              </div>
+              <div className="author-circle">
+                <span className="author-initial">N</span>
+                <span className="author-name">Nathan</span>
+              </div>
+              <div className="author-circle">
+                <span className="author-initial">A</span>
+                <span className="author-name">Abdi</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="register">
           <div className="phone-input">
@@ -195,7 +212,7 @@ function App() {
                 <div className="weather-temp-row">
                   <div>
                     <p className="temp-label">Overnight Low</p>
-                    <span className="temp-number">{Math.round(weather.tomorrowLow)}°F</span>
+                    <span className={`temp-number ${weather.frostRisk ? "temp-cold" : "temp-warm"}`}>{Math.round(weather.tomorrowLow)}°F</span>
                   </div>
                   {weather.frostRisk && <span className="frost-badge">❄ FROST</span>}
                 </div>
