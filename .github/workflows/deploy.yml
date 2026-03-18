@@ -26,5 +26,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin main
+            git pull origin ${{ github.event.workflow_run.head_branch }}
             docker compose up --build -d
