@@ -1,0 +1,20 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ main, dev, pipeline-sprint5, refactoring ]
+  pull_request:
+    branches: [ main, dev, pipeline-sprint5, refactoring ]
+
+jobs:
+  run-compose-tests:
+    name: Run Compose Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Run Compose Suite
+        run: |
+          docker compose up --build --wait
+          docker compose down

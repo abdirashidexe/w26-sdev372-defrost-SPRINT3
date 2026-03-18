@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    allowedHosts: 'all',
+    allowedHosts: ["frontend","localhost","127.0.0.1"],
   },
   test: {
     environment: "jsdom",
