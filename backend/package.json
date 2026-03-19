@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "vitest run --config ./vitest.config.js"
-},
+    "test": "vitest run --config ./vitest.config.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,7 +15,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mysql2": "^3.17.2",
-    "twilio": "^5.12.2"
+    "twilio": "^5.13.0"
   },
   "devDependencies": {
     "supertest": "^7.2.2",

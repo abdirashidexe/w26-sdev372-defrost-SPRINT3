@@ -24,6 +24,7 @@
     "mysql2": "^3.16.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "resend": "^6.9.4",
     "twilio": "^5.12.2"
   },
   "devDependencies": {
