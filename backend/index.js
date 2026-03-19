@@ -3,6 +3,12 @@ import express from "express";
 import cors from "cors";
 import twilio from "twilio";
 import { Resend } from "resend";
+import {
+  insertUser,
+  DuplicatePhoneError,
+  listUsers,
+  countUsers,
+} from "./services/users.mjs";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -37,14 +43,11 @@ app.post("/users", async (req, res) => {
   }
 
   try {
-    const [result] = await pool.execute(
-      `INSERT INTO defrost_users (phone_number) VALUES (?)`,
-      [phone]
-    );
-    console.log(`Inserted phone ${phone} (id ${result.insertId ?? "unknown"})`);
-    return res.status(201).json({ id: result.insertId, phoneNumber: phone });
+    const insertId = await insertUser(phone);
+    console.log(`Inserted phone ${phone} (id ${insertId ?? "unknown"})`);
+    return res.status(201).json({ id: insertId, phoneNumber: phone });
   } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
+    if (err instanceof DuplicatePhoneError) {
       return res.status(409).json({ error: "Phone number already registered" });
     }
     console.error("saving user failed", err);
@@ -82,12 +85,36 @@ app.post("/send-text", async (req, res) => {
   return res.status(200).json({ message: data });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get("/users", async (req, res) => {
+  try {
+    const users = await listUsers();
+    return res.json({ users });
+  } catch (err) {
+    console.error("listing users failed", err);
+    return res.status(500).json({ error: "Unable to list users" });
+  }
 });
+
+app.get("/users/count", async (req, res) => {
+  try {
+    const total = await countUsers();
+    return res.json({ total });
+  } catch (err) {
+    console.error("counting users failed", err);
+    return res.status(500).json({ error: "Unable to count users" });
+  }
+});
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
 
 export function cleanPhoneNumber(input) {
   if (typeof input !== "string") return null;
   const digits = input.replace(/\D/g, "");
   return digits.length >= 10 ? digits : null;
 }
+
+export default app;
