@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { cleanPhoneNumber } from "../../index.js";
+import { cleanPhoneNumber } from "../../../backend/index.js";
 
 describe("cleanPhoneNumber", () => {
 

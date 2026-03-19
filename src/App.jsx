@@ -2,7 +2,12 @@ import { useState, useEffect, useMemo } from "react";
 import "./index.css";
 
 function App() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  const isLocalHost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+  const localHostApi = "http://localhost:3001";
+  const containerApi = import.meta.env.VITE_API_BASE_URL || "http://api:3000";
+  const API_BASE_URL = isLocalHost ? localHostApi : containerApi;
   const PIRATE_WEATHER_KEY = import.meta.env.VITE_PIRATE_WEATHER_KEY;
   const FROST_THRESHOLD_F = 32;
   const WAKEUP_OFFSET_MINUTES = 15;
@@ -141,7 +146,7 @@ function App() {
       )}
       <div className="page">
         <div className="hero">
-          <h1><span className="bracket">[</span>Defrost<span className="bracket">]</span></h1>
+          <h1>Defrost</h1>
           <p className="tagline">Morning frost alerts for your car</p>
           <p className="hero-desc">
             Wake up ready. Defrost checks tomorrow's overnight low and sends you a text alert when your car needs defrosting so you're never caught off guard on a cold morning.

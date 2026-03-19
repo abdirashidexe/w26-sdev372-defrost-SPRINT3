@@ -7,7 +7,7 @@ import App from "./App";
 describe("App component", () => {
   test("Testing rendering of the main title", () => {
     render(<App />);
-    expect(screen.getByText("[Defrost]")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /defrost/i })).toBeInTheDocument();
   });
 
   test("renders phone number input", () => {

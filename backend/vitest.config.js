@@ -1,10 +1,12 @@
-/// backend/vitest.config.js
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "node:url";
+
+const backendDir = fileURLToPath(new URL(".", import.meta.url));
 
 export default defineConfig({
+  root: backendDir,
   test: {
-    globals: true,
-    environment: 'node',
-    include: ['tests/**/*.test.js'] // only backend tests
-  }
-})
+    environment: "node",
+    include: ["../tests/backend/**/*.test.{js,jsx}"],
+  },
+});
