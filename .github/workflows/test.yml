@@ -37,7 +37,7 @@ jobs:
           docker compose ps
           exit 1
       - name: Run backend suite
-        run: docker compose run --rm -v "${{ github.workspace }}/tests:/tests" api npm --prefix backend run test
+        run: docker compose run --rm -v "${{ github.workspace }}/tests:/tests" api sh -c "cd backend && npm run test"
       - name: Tear down compose
         if: always()
         run: docker compose down
