@@ -20,8 +20,19 @@ jobs:
         run: npm install
       - name: Install backend deps
         run: npm --prefix backend install
+      - name: Start database
+        run: docker compose up -d db
+      - name: Wait for database
+        run: |
+          for i in $(seq 1 15); do
+            docker compose exec db mysqladmin ping -h localhost -p"root" >/dev/null && break
+            sleep 2
+          done
       - name: Run backend suite
         run: npm --prefix backend run test
+      - name: Tear down compose
+        if: always()
+        run: docker compose down
 
   frontend:
     name: Frontend tests
