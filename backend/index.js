@@ -72,26 +72,11 @@ app.post("/users", async (req, res) => {
 //   }
 // })
 
-// app.post("/send-text", async (req, res) => {
-//   const response = await fetch('https://textbelt.com/text', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({
-//       phone: '+12533350973', // your real number
-//       message: 'Defrost detected! Set an earlier alarm for tomorrow!',
-//       key: 'textbelt', // this is the free tier key, gives 1 text/day
-//     }),
-//   });
-
-//   const data = await response.json();
-//   console.log(data);
-//   return res.status(200).json({ message: data });
-// });
 
 app.post("/send-text", async (req, res) => {
   const data = await resend.emails.send({
-    from: 'onboarding@resend.dev', // use this exact address for testing
-    to: 'ahmed.abdirashid@student.greenriver.edu', // your real email
+    from: 'onboarding@resend.dev', // resend testing email
+    to: 'ahmed.abdirashid@student.greenriver.edu', // recipients email (testing w/ dev)
     subject: 'Defrost Alert!',
     html: '<p>Defrost detected! Set an earlier alarm for tomorrow!</p>',
   });
