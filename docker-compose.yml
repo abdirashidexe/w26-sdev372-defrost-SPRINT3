@@ -5,12 +5,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: defrost_app
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
+      MYSQL_USER: defrostuser
+      MYSQL_PASSWORD: impreza
     volumes:
       - db_data:/var/lib/mysql
       - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+    ports:
+      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -24,8 +26,8 @@ services:
       - "3001:3000"
     environment:
       DB_HOST: db
-      DB_USER: appuser
-      DB_PASSWORD: apppass
+      DB_USER: defrostuser
+      DB_PASSWORD: impreza
       DB_NAME: defrost_app
     depends_on:
       db:
@@ -65,8 +67,8 @@ services:
         condition: service_started
     environment:
       - DB_HOST=db
-      - DB_USER=appuser
-      - DB_PASSWORD=apppass
+      - DB_USER=defrostuser
+      - DB_PASSWORD=impreza
       - DB_NAME=defrost_app
       - PLAYWRIGHT_BASE_URL=http://frontend:5173
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
