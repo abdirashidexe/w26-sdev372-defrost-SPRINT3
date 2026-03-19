@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd ${{ secrets.DEPLOY_PATH }}
-          git pull origin dev
-          docker compose up --build -d
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            git pull origin dev
+            docker compose up --build -d
