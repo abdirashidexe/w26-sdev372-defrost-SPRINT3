@@ -1,7 +1,7 @@
 USE defrost_app;
-DROP USER IF EXISTS 'defrost_user'@'localhost';
-CREATE USER 'defrost_user'@'localhost' IDENTIFIED BY 'impreza';
-GRANT ALL PRIVILEGES ON defrost_app.* TO 'defrost_user'@'localhost';
+DROP USER IF EXISTS 'defrostuser'@'localhost';
+CREATE USER 'defrostuser'@'localhost' IDENTIFIED BY 'impreza';
+GRANT ALL PRIVILEGES ON defrost_app.* TO 'defrostuser'@'localhost';
 FLUSH PRIVILEGES;
 
 DROP TABLE IF EXISTS defrost_users;
