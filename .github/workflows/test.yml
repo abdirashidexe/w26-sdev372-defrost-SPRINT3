@@ -2,19 +2,50 @@ name: CI Tests
 
 on:
   push:
-    branches: [ main, dev, pipeline-sprint5, refactoring ]
+    branches: [main, dev, pipeline-sprint5]
   pull_request:
-    branches: [ main, dev, pipeline-sprint5, refactoring ]
+    branches: [main, dev, pipeline-sprint5]
 
 jobs:
-  run-compose-tests:
-    name: Run Compose Tests
+  backend:
+    name: Backend tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install root dependencies
+        run: npm install
+      - name: Install backend deps
+        run: npm --prefix backend install
+      - name: Run backend suite
+        run: npm --prefix backend run test
+
+  frontend:
+    name: Frontend tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      - name: Run frontend suite
+        run: npm run test:frontend
+
+  compose:
+    name: Compose integration + e2e
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Run Compose Suite
+      - name: Run Docker Compose suite
         run: |
           docker compose up --build --wait
           docker compose down
