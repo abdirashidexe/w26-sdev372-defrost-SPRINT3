@@ -12,12 +12,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build backend API image
-        run: docker compose build api
-      - name: Run backend suite in container
-        run: docker compose run --rm api npm --prefix backend run test
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install root dependencies
+        run: npm install
+      - name: Install backend deps
+        run: npm --prefix backend install
+      - name: Start database
+        run: docker compose up -d db
+      - name: Wait for database
+        run: |
+          for i in $(seq 1 30); do
+            CONTAINER=$(docker compose ps -q db)
+            if [ -n "$CONTAINER" ]; then
+              STATUS=$(docker inspect -f '{{.State.Health.Status}}' "$CONTAINER")
+              if [ "$STATUS" = "healthy" ]; then
+                exit 0
+              fi
+            fi
+            sleep 2
+          done
+          docker compose ps
+          exit 1
+      - name: Run backend suite
+        run: npm --prefix backend run test
       - name: Tear down compose
         if: always()
         run: docker compose down
