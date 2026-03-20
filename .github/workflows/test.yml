@@ -93,8 +93,8 @@ jobs:
           done
       - name: Prepare Playwright artifacts
         run: |
-          rm -rf test-results
-          mkdir -p test-results
+          sudo rm -rf test-results
+          sudo mkdir -p test-results
       - name: Run E2E tests
         run: npm run test:e2e
       - name: Tear down
