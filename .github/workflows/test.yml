@@ -95,6 +95,8 @@ jobs:
         run: |
           sudo rm -rf test-results
           sudo mkdir -p test-results
+      - name: Install Playwright browsers
+        run: npx playwright install
       - name: Run E2E tests
         run: npm run test:e2e
       - name: Tear down
