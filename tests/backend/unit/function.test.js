@@ -1,14 +1,14 @@
 import { describe, test, expect } from "vitest";
-import { cleanPhoneNumber } from "../../../backend/index.js";
+import { validateEmail } from "../../../backend/index.js";
 
-describe("cleanPhoneNumber", () => {
+describe("validateEmail", () => {
 
-  test("removes non-numeric characters", () => {
-    expect(cleanPhoneNumber("(206) 555-1234")).toBe("2065551234");
+  test("normalizes and accepts a well-formed email", () => {
+    expect(validateEmail("  USER@Example.COM ")).toBe("user@example.com");
   });
 
-  test("returns null for invalid numbers", () => {
-    expect(cleanPhoneNumber("abc")).toBe(null);
+  test("returns null for malformed input", () => {
+    expect(validateEmail("not-an-email")).toBe(null);
   });
 
 });

@@ -71,8 +71,8 @@ body::before {
   .tagline { text-align: center; }
 }
 
-/* Phone input */
-.phone-input {
+/* Email input */
+.email-input {
   margin-top: 20px;
   width: 100%;
 }

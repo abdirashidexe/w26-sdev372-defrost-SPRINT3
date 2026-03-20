@@ -10,14 +10,14 @@ describe("App component", () => {
     expect(screen.getByRole("heading", { name: /defrost/i })).toBeInTheDocument();
   });
 
-  test("renders phone number input", () => {
-    const input = screen.getByLabelText(/enter a phone number/i);
+  test("renders email input", () => {
+    const input = screen.getByLabelText(/enter your email/i);
     expect(input).toBeInTheDocument();
   });
 
   test("updates input when user types", async () => {
-    const input = screen.getByLabelText(/enter a phone number/i);
-    await userEvent.type(input, "2065551234");
-    expect(input.value).toBe("2065551234");
+    const input = screen.getByLabelText(/enter your email/i);
+    await userEvent.type(input, "user@example.com");
+    expect(input.value).toBe("user@example.com");
   });
 });

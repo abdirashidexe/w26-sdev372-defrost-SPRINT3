@@ -1,5 +1,5 @@
 USE defrost_app;
 
-INSERT INTO defrost_users (phone_number)
+INSERT INTO defrost_users (email)
 VALUES
-  ('5551234567');
+  ('test.user@example.com');

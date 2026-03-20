@@ -1,31 +1,35 @@
-name: deploy
+name: Deploy
 
 on:
   workflow_run:
-    workflows: ["CI Tests"]
-    types: [completed]
-    branches: [main, dev]
-  workflow_dispatch:
+    workflows: [Tests]
+    types:
+      - completed
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Install Tailscale
-        uses: tailscale/github-action@v4
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+      - name: Connect to tailnet
+        env:
+          TS_CLI_USER: root
+        run: sudo tailscale up --authkey="${{ secrets.TS_AUTH_KEY }}" --advertise-tags=tag:deploy
+      - name: Deploy to Orange Pi
+        run: |
+          mkdir -p deploy-logs
+          tailscale ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "rm -rf /root/w26-sdev372-defrost-sprint5 && \
+             git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} /root/w26-sdev372-defrost-sprint5 && \
+             cd /root/w26-sdev372-defrost-sprint5 && \
+             docker compose down && \
+             docker compose up -d --build" | tee deploy-logs/deploy.log
+      - name: Upload deploy log
+        uses: actions/upload-artifact@v4
         with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:deploy
-
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin dev
-            docker compose up --build -d
+          name: deploy-logs
+          path: deploy-logs/deploy.log

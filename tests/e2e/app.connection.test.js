@@ -3,13 +3,13 @@ import { test, expect } from "@playwright/test";
 const BASE_URL =
   process.env.PLAYWRIGHT_BASE_URL || "http://localhost:5173";
 
-test("user can enter phone number and sign up", async ({ page }) => {
+test("user can enter email and sign up", async ({ page }) => {
   await page.goto(BASE_URL);
 
-  const phoneInput = page.getByLabel("Enter a Phone Number:");
-  await phoneInput.fill("2065551234");
+  const emailInput = page.getByLabel("Enter your email:");
+  await emailInput.fill("user@example.com");
   await page.getByText("Sign up").click();
-  await expect(phoneInput).toHaveValue("2065551234");
+  await expect(emailInput).toHaveValue("user@example.com");
 });
 
 test("user can request frost risk after getting location", async ({ browser }) => {

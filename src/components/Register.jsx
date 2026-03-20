@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 
 export default function Register() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL ||
+        (import.meta.env.DEV ? "http://localhost:3001" : "http://api:3000");
     const PIRATE_WEATHER_KEY = import.meta.env.VITE_PIRATE_WEATHER_KEY;
     const FROST_THRESHOLD_F = 32;
     const WAKEUP_OFFSET_MINUTES = 15;
+    const weatherKeyPresent = Boolean(PIRATE_WEATHER_KEY?.trim());
+    const weatherKeyMissingMessage = "Set VITE_PIRATE_WEATHER_KEY in .env to check frost risk.";
 
-    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
     const [signupMsg, setSignupMsg] = useState(null);
     const [testMsg, setTestMsg] = useState(null);
     const [long, setLong] = useState(0);
@@ -34,22 +38,22 @@ export default function Register() {
     }, [weather?.frostRisk]);
 
     const handleSubmit = async () => {
-        if (!phone.trim()) {
-            setSignupMsg({ type: "error", text: "Enter an email first." });
+        if (!email.trim()) {
+            setSignupMsg({ type: "error", text: "Enter your email to sign up." });
             return;
         }
         try {
             const res = await fetch(`${API_BASE_URL}/users`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phoneNumber: phone }),
+                body: JSON.stringify({ email }),
             });
             const body = await res.json().catch(() => ({}));
             if (!res.ok) {
                 setSignupMsg({ type: "error", text: body?.error || `Signup failed (${res.status})` });
                 return;
             }
-            setSignupMsg({ type: "success", text: `✓ Signed up as ${body.phoneNumber}` });
+            setSignupMsg({ type: "success", text: `✓ Signed up as ${body.email ?? email}` });
         } catch (err) {
             console.error(err);
             setSignupMsg({ type: "error", text: "Cannot reach backend. Start backend and try again." });
@@ -59,16 +63,17 @@ export default function Register() {
     const sendTestMessage = async () => {
         setTestMsg(null);
         try {
-            const res = await fetch(`${API_BASE_URL}/send-text`, {
+            const res = await fetch(`${API_BASE_URL}/send-test-email`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" }
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ weather }),
             });
             const body = await res.json().catch(() => ({}));
             if (!res.ok) {
                 setTestMsg({ type: "error", text: body?.error || `Failed (${res.status})` });
                 return;
             }
-            setTestMsg({ type: "success", text: "✓ Test mail sent!" });
+            setTestMsg({ type: "success", text: "✓ Test email sent!" });
         } catch (err) {
             console.log(err);
             setTestMsg({ type: "error", text: "Cannot reach backend." });
@@ -76,6 +81,12 @@ export default function Register() {
     };
 
     const locationWeather = async (latitude = lat, longitude = long) => {
+        if (!weatherKeyPresent) {
+            setWeatherError(weatherKeyMissingMessage);
+            setWeather(null);
+            setWeatherLoading(false);
+            return;
+        }
         if (!latitude || !longitude) {
             setWeatherError("Get your location first to check frost risk.");
             return;
@@ -110,6 +121,10 @@ export default function Register() {
     };
 
     const getLocation = () => {
+        if (!weatherKeyPresent) {
+            setWeatherError(weatherKeyMissingMessage);
+            return;
+        }
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(onLocSuccess, onLocError);
         } else {
@@ -138,16 +153,16 @@ export default function Register() {
                 </div>
             )}
             <div className="register">
-                <div className="phone-input">
-                    <label htmlFor="phone-number" id="userPrompt">Enter an Email:</label>
+                <div className="email-input">
+                    <label htmlFor="email-input" id="userPrompt">Enter your email:</label>
                     <div className="input-wrapper">
                         <span className="input-icon">📩</span>
                         <input
-                            id="phone-number"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            type="tel"
-                            placeholder="user@email.com"
+                            id="email-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            type="email"
+                            placeholder="you@example.com"
                         />
                     </div>
                 </div>
@@ -163,7 +178,7 @@ export default function Register() {
                 {locationDetected && !locError && <p className="status-success loc-tag">✓ Location detected</p>}
                 {locError && <p className="error">{locError}</p>}
 
-                <button className="btn btn-secondary" onClick={sendTestMessage}>Send Test Mail</button>
+                <button className="btn btn-secondary" onClick={sendTestMessage}>Send Test Email</button>
                 {testMsg && <p className={testMsg.type === "success" ? "status-success" : "error"}>{testMsg.text}</p>}
                 {weatherError && <p className="error">{weatherError}</p>}
 

@@ -29,6 +29,13 @@ services:
       DB_USER: defrostuser
       DB_PASSWORD: impreza
       DB_NAME: defrost_app
+      DB_ROOT_USER: root
+      DB_ROOT_PASSWORD: root
+      ENABLE_TEST_EMAIL: ${ENABLE_TEST_EMAIL}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL}
+      RESEND_TO_EMAIL: ${RESEND_TO_EMAIL}
+      RESEND_SUBJECT: ${RESEND_SUBJECT}
     depends_on:
       db:
         condition: service_healthy
@@ -70,6 +77,8 @@ services:
       - DB_USER=defrostuser
       - DB_PASSWORD=impreza
       - DB_NAME=defrost_app
+      - DB_ROOT_USER=root
+      - DB_ROOT_PASSWORD=root
       - PLAYWRIGHT_BASE_URL=http://frontend:5173
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
