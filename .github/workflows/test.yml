@@ -91,6 +91,10 @@ jobs:
             curl -sf http://localhost:5173 >/dev/null && break
             sleep 2
           done
+      - name: Prepare Playwright artifacts
+        run: |
+          mkdir -p test-results
+          chmod -R 777 test-results
       - name: Run E2E tests
         run: npm run test:e2e
       - name: Tear down
