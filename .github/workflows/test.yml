@@ -44,8 +44,6 @@ jobs:
           MYSQL_DATABASE: defrost_app
           MYSQL_USER: defrostuser
           MYSQL_PASSWORD: impreza
-        ports:
-          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s
