@@ -4,7 +4,7 @@ export default function Hero() {
             <h1><span className="bracket">[</span>Defrost<span className="bracket">]</span></h1>
             <p className="tagline">Morning frost alerts for your car</p>
             <p className="hero-desc">
-                Wake up ready. Defrost checks tomorrow's overnight low and sends you an email alert when your car needs defrosting so you're never caught off guard on a cold morning.
+                Wake up ready. Defrost checks tomorrow's overnight low and sends you an email alert when your car needs defrosting so you're never caught off guard on a cold morning. 🌡️
             </p>
             <div className="authors">
                 <p className="authors-label">Built by</p>
