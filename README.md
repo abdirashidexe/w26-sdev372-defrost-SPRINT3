@@ -68,6 +68,7 @@ Catching a car covered in overnight frost wastes time and energy. Defrost predic
 5. When the frontend sends `{ weather: { ... } }` with the POST, the backend now renders that forecast into the email body, so recipients see the low, frost risk, and suggested wake-up offset directly inside the alert.
 
 ## CI/CD pipelines
+<!-- tiny nop change to trigger CI rerun -->
 **Tests** `.github/workflows/test.yml` runs on every push/PR to `dev` and splits the suite into backend, frontend, integration, and e2e jobs. Each job installs deps, runs its slice of the stack, and `needs` the previous stage so failures stop the downstream steps.
 
 **Deploy** `.github/workflows/deploy.yml` runs automatically once the Tests workflow succeeds. The deploy job:
