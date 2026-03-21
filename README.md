@@ -71,11 +71,64 @@ Catching a car covered in overnight frost wastes time and energy. Defrost predic
 <!-- tiny nop change to trigger CI rerun -->
 **Tests** `.github/workflows/test.yml` runs on every push/PR to `dev` and splits the suite into backend, frontend, integration, and e2e jobs. Each job installs deps, runs its slice of the stack, and `needs` the previous stage so failures stop the downstream steps.
 
-**Deploy** `.github/workflows/deploy.yml` runs automatically once the Tests workflow succeeds. The deploy job:
-1. Installs Tailscale, uses `TS_AUTH_KEY` to join the tailnet with `tag:deploy`, and keeps the connection alive on the runner.
-2. SSHs into `root@${DEPLOY_HOST}` (over Tailscale) and pulls the latest code into `/root/w26-sdev372-defrost-sprint5`.
-3. Rebuilds the Docker Compose stack there (`docker compose down && docker compose up -d --build`).
-4. Requires the repository secrets `TS_AUTH_KEY`, `DEPLOY_HOST`, `DEPLOY_USER`, `SSH_PRIVATE_KEY` (if you want to clone via SSH instead of HTTPS), and the default `GITHUB_TOKEN` so the runner can fetch the right commit.
-5. Captures the remote deploy output and uploads it as the `deploy-logs` artifact so you can audit what happened during the CD run.
+## Automated Deployment
 
-If you ever have to refresh the Orange Pi, just re-run the workflow—GitHub Actions will bring Tailscale up, connect back to the Pi, and redeploy exactly the code you just pushed.
+Deployment is handled through a GitHub Actions workflow located at `.github/workflows/deploy.yml`.
+
+### When Deployment Runs
+The deployment workflow runs automatically when:
+- Code is successfully merged into the `main` branch
+- All tests in the testing pipeline have passed
+
+### Deployment Process
+The workflow performs the following steps:
+
+1. **Connect to VM via Tailscale**
+   - Installs Tailscale on the GitHub Actions runner
+   - Uses the `TS_AUTH_KEY` secret to authenticate and join the tailnet
+   - Establishes a secure connection to the deployment VM
+
+2. **SSH into the VM**
+   - Connects to the server using:
+     ```
+     root@${DEPLOY_HOST}
+     ```
+   - Uses configured GitHub secrets for authentication
+
+3. **Pull Latest Code**
+   - Navigates to the project directory:
+     ```
+     /root/w26-sdev372-defrost-sprint5
+     ```
+   - Pulls the latest changes from the repository
+
+4. **Rebuild and Restart Application**
+   - Runs:
+     ```
+     docker compose down
+     docker compose up -d --build
+     ```
+   - This ensures the app is rebuilt and running with the latest code
+
+5. **Verify and Log Deployment**
+   - Captures output from the deployment process
+   - Uploads logs as a `deploy-logs` artifact in GitHub Actions
+
+### Required Secrets
+The following GitHub repository secrets must be configured:
+
+- `TS_AUTH_KEY` – Tailscale authentication key
+- `DEPLOY_HOST` – VM hostname or IP (via Tailscale)
+- `DEPLOY_USER` – SSH user (e.g., root)
+- `SSH_PRIVATE_KEY` – (optional) for SSH-based repo access
+- `GITHUB_TOKEN` – automatically provided by GitHub
+
+### Manual Redeployment
+If the server needs to be refreshed (e.g., VM reset or failure):
+- Re-run the `deploy.yml` workflow from the GitHub Actions tab
+- The workflow will reconnect to the VM and redeploy the latest version
+
+### Accessing the Live App
+Once deployed, the application is accessible at:
+https://orangepizero3.taile19edd.ts.net/
+
