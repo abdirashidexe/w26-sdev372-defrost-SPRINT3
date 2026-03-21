@@ -8,14 +8,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "dev": "vite",
-    "dev:backend": "nodemon backend/index.js",
     "test": "npm run test:frontend && npm run test:integration && npm run test:e2e",
     "test:e2e": "playwright test",
     "test:integration": "npm --prefix backend run test",
-    "test:frontend": "vitest run",
-    "start": "node backend/index.js",
-    "db:init": "mysql < backend/db/schema.sql && mysql < backend/db/seed.sql",
-    "dev:frontend": "vite"
+    "test:backend": "npm --prefix backend run test",
+    "test:frontend": "vitest run"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -24,7 +21,7 @@
     "mysql2": "^3.16.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "twilio": "^5.12.2"
+    "resend": "^6.9.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

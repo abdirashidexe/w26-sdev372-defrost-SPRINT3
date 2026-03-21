@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest run"
+    "test": "NODE_ENV=test NODE_PATH=./node_modules:../node_modules vitest --config vitest.config.js run",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "db:init": "mysql < db/schema.sql && mysql < db/seed.sql"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +18,12 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "mysql2": "^3.17.2",
-    "twilio": "^5.12.2"
+    "resend": "^6.9.4"
   },
   "devDependencies": {
     "supertest": "^7.2.2",
-    "vitest": "^4.0.18"
+    "nodemon": "^3.1.11",
+    "vitest": "^4.0.18",
+    "node-mocks-http": "^1.15.0"
   }
 }
