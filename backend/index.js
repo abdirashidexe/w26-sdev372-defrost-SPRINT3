@@ -39,7 +39,7 @@ async function ensureUsersTable() {
 
 async function bootstrap() {
   try {
-    await pool.query("SELECT 1");
+    await waitForDatabase();
     console.log("DB connected");
     if (!isTestEnvironment) {
       await ensureUsersTable();
@@ -58,6 +58,31 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+async function waitForDatabase(maxAttempts = 12, delayMs = 5000) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      await pool.query("SELECT 1");
+      return;
+    } catch (err) {
+      lastError = err;
+      const isLastAttempt = attempt === maxAttempts;
+
+      if (isLastAttempt) {
+        break;
+      }
+
+      console.warn(
+        `DB connection attempt ${attempt}/${maxAttempts} failed. Retrying in ${delayMs}ms...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw lastError;
+}
 
 app.use(express.json());
 
