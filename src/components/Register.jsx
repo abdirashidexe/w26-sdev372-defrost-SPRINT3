@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 
 export default function Register() {
-    const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL ||
-        (import.meta.env.DEV ? "http://localhost:3001" : "http://api:3000");
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
     const PIRATE_WEATHER_KEY = import.meta.env.VITE_PIRATE_WEATHER_KEY;
     const FROST_THRESHOLD_F = 32;
     const WAKEUP_OFFSET_MINUTES = 15;

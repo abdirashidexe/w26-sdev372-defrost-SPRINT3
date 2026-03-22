@@ -1,0 +1,25 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  docker-compose-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run full test stack in Docker Compose
+        run: docker compose up --build --abort-on-container-exit --exit-code-from tests
+
+      - name: Shut down stack
+        if: always()
+        run: docker compose down -v

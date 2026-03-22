@@ -11,11 +11,13 @@ describe("App component", () => {
   });
 
   test("renders email input", () => {
+    render(<App />);
     const input = screen.getByLabelText(/enter your email/i);
     expect(input).toBeInTheDocument();
   });
 
   test("updates input when user types", async () => {
+    render(<App />);
     const input = screen.getByLabelText(/enter your email/i);
     await userEvent.type(input, "user@example.com");
     expect(input.value).toBe("user@example.com");
