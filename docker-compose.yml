@@ -11,8 +11,6 @@ services:
       - db_data:/var/lib/mysql
       - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
-    ports:
-      - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
@@ -44,12 +42,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_PIRATE_WEATHER_KEY: ${VITE_PIRATE_WEATHER_KEY}
     ports:
-      - "3000:5173"
-    environment:
-      - HOST=0.0.0.0
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
-      - VITE_PIRATE_WEATHER_KEY=${VITE_PIRATE_WEATHER_KEY}
+      - "3000:80"
     depends_on:
       - api
 
@@ -63,7 +60,7 @@ services:
              cd backend &&
              npm ci &&
              cd .. &&
-             until curl -sf http://frontend:5173 >/dev/null; do sleep 1; done &&
+             until curl -sf http://frontend >/dev/null; do sleep 1; done &&
              npm run test"
     depends_on:
       db:
@@ -79,7 +76,7 @@ services:
       - DB_NAME=defrost_app
       - DB_ROOT_USER=root
       - DB_ROOT_PASSWORD=root
-      - PLAYWRIGHT_BASE_URL=http://frontend:5173
+      - PLAYWRIGHT_BASE_URL=http://frontend
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 volumes:
