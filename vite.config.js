@@ -5,7 +5,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: "0.0.0.0",
-    allowedHosts: ["localhost", "127.0.0.1"],
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      "orangepizero3.taile19edd.ts.net",
+      "orangepizero3-1.taile19edd.ts.net",
+    ],
     proxy: {
       "/api": {
         target: "http://localhost:3001",
