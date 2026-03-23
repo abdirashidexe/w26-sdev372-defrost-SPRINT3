@@ -128,7 +128,4 @@ If the server needs to be refreshed (e.g., VM reset or failure):
 - Re-run the `deploy.yml` workflow from the GitHub Actions tab
 - The workflow will reconnect to the VM and redeploy the latest version
 
-### Accessing the Live App
-Once deployed, the application is accessible at:
-https://orangepizero3.taile19edd.ts.net/
 
